@@ -1,4 +1,6 @@
-import { Sequelize } from "sequelize";
+import { Sequelize,DataTypes  } from "sequelize";
+import UserModel from '../model/User_Model.js';
+import ClientModel from '../model/Client_Modle.js';
 import dotenv from 'dotenv';
 dotenv.config({path:'./.env'});
 // Use environment variables for sensitive data
@@ -18,4 +20,17 @@ sequelize.authenticate()
     console.error('Unable to connect to the database:', error);
   });
 
-export default sequelize;
+  const db = {
+    sequelize,
+    Sequelize,
+    user: UserModel(sequelize, DataTypes),
+    client: ClientModel(sequelize, DataTypes),
+  };
+  db.sync()
+  .then(() => {
+    console.log('Database synchronized successfully.');
+  })
+  .catch((error) => {
+    console.error('Error synchronizing the database:', error);
+  });
+export default db;
