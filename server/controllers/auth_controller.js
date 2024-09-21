@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { validationResult } from 'express-validator';
 import db from '../config/db.js';
-import { generateToken } from './user.controller.js';
+import { generateToken } from '../services/jwt.js';
 
 const User = db.user;
 const Client = db.client;

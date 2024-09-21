@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { assignClientToUser, updateUserDetails, updateClientDetails } from '../controllers/admin.controller.js';
-import { isAdmin, verifyToken } from '../middlewares/auth.js';
+import { assignClientToUser, updateUserDetails, updateClientDetails } from '../controllers/admin_controller.js';
+import { isAdmin, verifyToken } from '../middleware/auth.js';
 
 const router = Router();
 

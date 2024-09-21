@@ -1,41 +1,56 @@
 import express from 'express';
-import cors from 'cors'
+import cors from 'cors';
 import { Server } from 'socket.io';
+import http from 'http';  // Import the http module
 import bodyParser from 'body-parser';
-import sequelize from '../config/db.js'
-import authRoutes from './routes/auth.routes.js';
-import adminRoutes from './routes/admin.routes.js';
-import userRoutes from './routes/user.routes.js';
-const app =express()
 
-app.use(express.json())
-app.use(cors())
-app.get('/',(req,res)=>{
-    res.send('server working fine!')
-})
+import authRoutes from '../router/auth_router.js';
+import adminRoutes from '../router/admin_router.js';
+import userRoutes from '../router/user_router.js';
+
+const app = express();
+
+// Middleware
+app.use(express.json());
+app.use(cors());
 app.use(bodyParser.json());
+
+// Simple route to check server status
+app.get('/', (req, res) => {
+  res.send('Server working fine!');
+});
+
+// Create HTTP server by wrapping the express app
+const httpServer = http.createServer(app);
+
+// Initialize Socket.IO server on top of httpServer
+const io = new Server(httpServer, {
+  cors: {
+    origin: '*',  // Allow all origins, you can restrict as needed
+    methods: ['GET', 'POST'],
+  },
+});
+
+// Attach Socket.IO instance to every request
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
-const io = new Server(httpServer);
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 
-// Socket.IO Connection
+// Socket.IO connection handler
 io.on('connection', (socket) => {
   console.log('User connected', socket.id);
+
+  // Handle socket disconnection
   socket.on('disconnect', () => {
     console.log('User disconnected', socket.id);
   });
 });
-sequelize.sync()
-  .then(() => {
-    console.log('Database synchronized successfully.');
-  })
-  .catch((error) => {
-    console.error('Error synchronizing the database:', error);
-  });
-export default app
+
+// Export httpServer to start it in another file
+export default httpServer;
